@@ -11,3 +11,7 @@ D=A
 D=D+A
 @0
 M=D
+D
+// Testing
+@32767
+AMD=D+A;JMP
