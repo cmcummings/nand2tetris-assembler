@@ -9,8 +9,8 @@ Objective:
   built in the previous projects.
 
 Usage:
-* python assembler.py ...
-                   ...add/Add.asm
+* python3 assembler.py ...
+                    ...add/Add.asm
 
 """
 
@@ -59,7 +59,7 @@ for l, line in enumerate(file_to_translate):
     instruction_type = 1 # 0=a, 1=c
     v = 0b0 # A-instruction address
 
-    a, c, d, j = 0, [0] * 6, [0] * 3, [0] * 3
+    a, c, d, j = "0", ["0"] * 6, ["0"] * 3, ["0"] * 3
     
     # Skip empty lines
     if len(line) == 0: continue
@@ -76,7 +76,7 @@ for l, line in enumerate(file_to_translate):
         if address_dec < 0: # Address cannot be negative
             raise Exception("Address cannot be negative.")
         
-        v = bin(address_dec)
+        v = format(address_dec, "015b")
     else:
         instruction_type = 1 # C-instruction
         print("C-instruction")
@@ -99,14 +99,30 @@ for l, line in enumerate(file_to_translate):
 
         # Parse dest
         if dest is not None:
-            pass
+            if "A" in dest: d[0] = "1"
+            if "D" in dest: d[1] = "1"
+            if "M" in dest: d[2] = "1"
 
         # Parse jump
         if jump is not None:
-            pass
-        
+            if jump[0:2] == "JG": 
+                j[2] = "1"
+                if jump[2] == "E": j[1] = "1"
+            elif jump[0:2] == "JL":
+                j[0] = "1"
+                if jump[2] == "E": j[1] = "1"
+            elif jump == "JMP": j[0:3] = ["1"] * 3
+            elif jump == "JNE": 
+                j[0], j[2] = "1", "1"
+            elif jump == "JEQ": 
+                j[1] = "1"        
 
     # Construct the instruction
+    if instruction_type == 0:
+        print(str(v))
+        binary_lines.append("0" + v)
+    elif instruction_type == 1:
+        binary_lines.append("111" + a + "".join(c) + "".join(d) + "".join(j))
 
     print("\n")
 

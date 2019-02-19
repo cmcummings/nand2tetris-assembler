@@ -15,3 +15,10 @@ D
 // Testing
 @32767
 AMD=D+A;JMP
+0;JGT
+0;JEQ
+0;JGE
+0;JLT
+0;JNE
+0;JLE
+0;JMP
