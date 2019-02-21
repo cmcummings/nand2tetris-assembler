@@ -1,0 +1,112 @@
+# parser.py
+from exceptions import InvalidAddressError
+
+A_COMMAND = 0
+C_COMMAND = 2
+L_COMMAND = 4
+
+
+class Parser:
+    """Encapsulates access to the input code. 
+       Reads an assembly language com-mand, parses it, and 
+    provides convenient access to the command’s 
+    components(fields and symbols). 
+       In addition, removes all white space and comments."""
+
+    def __init__(self, path):
+        """Opens the file at file_path and gets ready to parse it."""
+        
+        # File
+        self.path = path
+        self.file = open(self.path)
+        # File reading
+        self.lines = self.file.readlines()
+        self.index = -1
+        self.line = None
+        
+        print("Opened file:", self.path)
+
+    def has_more_commands(self):
+        return self.index + 1 < len(self.lines)
+
+    def advance(self):
+        """Reads the next command from the input and makes it the current command.
+        Should be called only when has_more_commands is True. Initially there is no current command."""
+        
+        self.index += 1
+        
+        dirty_line = self.lines[self.index]
+        clean_line = dirty_line.split("//")[0].strip() # Remove whitespace and comments
+        self.line = Line(clean_line)
+        
+        return self.line
+
+    def __del__(self):
+        self.file.close()
+        print("Closing file:", self.path)
+
+
+
+class Line:
+    """Is returned when reading from a Parser object. 
+    Contains functions related to a line."""
+
+    def __init__(self, line):
+        self.line = line
+        self.length = len(line)
+
+    def __str__(self):
+        return self.line
+
+    def __len__(self):
+        return len(self.line)
+
+    def command_type(self):
+        """Returns the type of the current command.
+        A_COMMAND: @Xxx where Xxx is either a symbol or decimal number.
+        C_COMMAND: for dest=comp;jump
+        L_COMMAND: (Xxx) where Xxx is a symbol"""
+        
+        if self.line[0] == "@":
+            return A_COMMAND
+        elif self.line[0] == "(" and self.line[:-1] == ")":
+            return L_COMMAND
+        else:
+            return C_COMMAND
+
+    def symbol(self):
+        """Returns the symbol or decimal Xxx of the current command @Xxx or (Xxx).
+        Should be called only when command_type is A_COMMAND or L_COMMAND"""
+        
+        address_dec = int(self.line[1:])
+        if address_dec > 2 ** 15: # max 15-bit integer (32767)
+            raise InvalidAddressError("Address " + str(address_dec) + " exceeds the maximum capacity.")
+        if address_dec < 0: # Address cannot be negative
+            raise InvalidAddressError("Address cannot be negative.")
+        return format(address_dec, "015b") # Returns binary conversion of address_dec w/o 0b at the beginning
+
+    def dest(self):
+        """Returns the dest mnemonic. Should be called only when command_type is C_COMMAND"""
+        
+        if "=" in self.line:
+            return self.line.split("=")[0]
+        return None
+
+    def comp(self):
+        """Returns the comp mnemonic. Should be called only when command_type is C_COMMAND"""
+        
+        comp = self.line
+        temp = comp.split("=")
+        if len(temp) > 1:
+            comp = temp[1]
+        temp = comp.split(";")
+        if len(temp) > 0:
+            comp = temp[0]
+        return comp
+
+    def jump(self):
+        """Returns the jump mnemonic. Should be called only when command_type is C_COMMAND"""
+        
+        if ";" in self.line: # dest, jump
+            return self.line.split(";")[1]
+        return None
