@@ -41,23 +41,34 @@ while asm_file.has_more_commands():
     print(line)
 
     # Determine the instruction type
-    command_type = line.command_type()
+    command_type = asm_file.command_type()
 
     if command_type == A_COMMAND:
         print("A COMMAND")
 
-        address = line.symbol()
-
+        address = asm_file.symbol()
         print(address)
+
+        hack_file.write_line(code.construct_a_instruction(address))
     
     elif command_type == C_COMMAND:
         print("C COMMAND")
-    
 
-    
+        asm_comp = asm_file.comp()
+        asm_dest = asm_file.dest()
+        asm_jump = asm_file.jump()
+
+        bin_comp = code.translate_comp(asm_comp)
+        bin_dest = code.translate_dest(asm_dest)
+        bin_jump = code.translate_jump(asm_jump)
+
+        hack_file.write_line(code.construct_c_instruction(bin_comp, bin_dest, bin_jump))
+
     elif command_type == L_COMMAND:
         print("L COMMAND")
 
+        address = line.symbol()
 
+        print(address)
 
     print("\n")

@@ -6,7 +6,7 @@ class Writer:
     def __init__(self, path):
         """Creates or overwrites (cleans) the file that will be written to."""
         self.path = path
-        self.file = open(self.path, "w+")
+        self.file = open(self.path, "w")
         print("Opened file:", self.path)
 
     def write_line(self, line):

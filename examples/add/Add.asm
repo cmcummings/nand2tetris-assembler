@@ -23,3 +23,10 @@ AMD=D+A;JMP
 0;JLE
 0;JMP
 1;JMP
+
+(20)
+@20
+0;JMP
+
+(HELP)
+@HELP

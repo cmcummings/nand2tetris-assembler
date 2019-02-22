@@ -1,5 +1,6 @@
 # parser.py
 from exceptions import InvalidAddressError
+from symboltable import SymbolTable
 
 A_COMMAND = 0
 C_COMMAND = 2
@@ -23,8 +24,16 @@ class Parser:
         self.lines = self.file.readlines()
         self.index = -1
         self.line = None
+        # Symbol table
+        self.symbol_table = SymbolTable()
         
         print("Opened file:", self.path)
+
+    def __str__(self):
+        return self.line
+
+    def __len__(self):
+        return len(self.line)
 
     def has_more_commands(self):
         return self.index + 1 < len(self.lines)
@@ -36,40 +45,18 @@ class Parser:
         self.index += 1
         
         dirty_line = self.lines[self.index]
-        clean_line = dirty_line.split("//")[0].strip() # Remove whitespace and comments
-        self.line = Line(clean_line)
+        self.line = dirty_line.split("//")[0].strip() # Remove whitespace and comments
         
         return self.line
-
-    def __del__(self):
-        self.file.close()
-        print("Closing file:", self.path)
-
-
-
-class Line:
-    """Is returned when reading from a Parser object. 
-    Contains functions related to a line."""
-
-    def __init__(self, line):
-        self.line = line
-        self.length = len(line)
-
-    def __str__(self):
-        return self.line
-
-    def __len__(self):
-        return len(self.line)
-
+    
     def command_type(self):
         """Returns the type of the current command.
         A_COMMAND: @Xxx where Xxx is either a symbol or decimal number.
         C_COMMAND: for dest=comp;jump
         L_COMMAND: (Xxx) where Xxx is a symbol"""
-        
         if self.line[0] == "@":
             return A_COMMAND
-        elif self.line[0] == "(" and self.line[:-1] == ")":
+        elif self.line[0] == "(" and self.line[-1] == ")":
             return L_COMMAND
         else:
             return C_COMMAND
@@ -77,8 +64,26 @@ class Line:
     def symbol(self):
         """Returns the symbol or decimal Xxx of the current command @Xxx or (Xxx).
         Should be called only when command_type is A_COMMAND or L_COMMAND"""
-        
-        address_dec = int(self.line[1:])
+        # Check if symbol
+        address_dec = 0
+        if self.line.isdigit():
+            if self.command_type() == L_COMMAND:
+                address_dec = int(self.line[1:-1])
+            else:
+                address_dec = int(self.line[1:])
+        else:
+            variable = None
+            if self.command_type() == L_COMMAND:
+                variable = self.line[1:-1]
+            else:
+                variable = self.line[1:]
+            print(variable)
+            if self.symbol_table.contains(variable):
+                address_dec = self.symbol_table.get_address(variable)
+            else:
+                address_dec = self.symbol_table.add_entry(variable)
+
+
         if address_dec > 2 ** 15: # max 15-bit integer (32767)
             raise InvalidAddressError("Address " + str(address_dec) + " exceeds the maximum capacity.")
         if address_dec < 0: # Address cannot be negative
@@ -110,3 +115,19 @@ class Line:
         if ";" in self.line: # dest, jump
             return self.line.split(";")[1]
         return None
+
+    def __del__(self):
+        self.file.close()
+        print("Closing file:", self.path)
+
+
+
+# class Line:
+#     """Is returned when reading from a Parser object. 
+#     Contains functions related to a line."""
+
+#     def __init__(self, line):
+#         self.line = line
+#         self.length = len(line)
+
+    

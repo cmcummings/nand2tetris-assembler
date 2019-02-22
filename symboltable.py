@@ -7,9 +7,12 @@ class SymbolTable:
         # Table structure: [(symbol, address), (symbol2, address2), ...]
         self.table = [] 
     
-    def add_entry(self, symbol, address):
-        """Adds the pair (symbol, address) to the table."""
-        self.table.append(symbol, address)
+    def add_entry(self, symbol):
+        """Adds the pair (symbol, address) to the table and returns it.
+        Address is assigned automatically by this function."""
+        address = 0
+        self.table.append((symbol, address))
+        return self.get_address(symbol)
 
     def contains(self, symbol):
         """Returns if the symbol table contains the given symbol."""
