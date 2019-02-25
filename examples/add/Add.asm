@@ -30,3 +30,9 @@ AMD=D+A;JMP
 
 (HELP)
 @HELP
+
+(ARG)
+@ARG
+
+(OK)
+@OK

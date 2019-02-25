@@ -66,23 +66,21 @@ class Parser:
         Should be called only when command_type is A_COMMAND or L_COMMAND"""
         # Check if symbol
         address_dec = 0
-        if self.line.isdigit():
-            if self.command_type() == L_COMMAND:
-                address_dec = int(self.line[1:-1])
-            else:
-                address_dec = int(self.line[1:])
-        else:
-            variable = None
-            if self.command_type() == L_COMMAND:
-                variable = self.line[1:-1]
-            else:
-                variable = self.line[1:]
-            print(variable)
-            if self.symbol_table.contains(variable):
-                address_dec = self.symbol_table.get_address(variable)
-            else:
-                address_dec = self.symbol_table.add_entry(variable)
 
+        addy_only = ""
+        if self.command_type() == L_COMMAND:
+            addy_only = self.line[1:-1]
+        else: # A_COMMAND
+            addy_only = self.line[1:]
+
+        if addy_only.isdigit():
+            address_dec = int(addy_only)
+        else:
+            print(addy_only)
+            if self.symbol_table.contains(addy_only):
+                address_dec = self.symbol_table.get_address(addy_only)
+            else:
+                address_dec = self.symbol_table.add_entry(addy_only)
 
         if address_dec > 2 ** 15: # max 15-bit integer (32767)
             raise InvalidAddressError("Address " + str(address_dec) + " exceeds the maximum capacity.")
