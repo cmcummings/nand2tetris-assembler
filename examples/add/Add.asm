@@ -11,28 +11,5 @@ D=A
 D=D+A
 @0
 M=D
-D
-// Testing
-@32767
-AMD=D+A;JMP
-0;JGT
-0;JEQ
-0;JGE
-0;JLT
-0;JNE
-0;JLE
-0;JMP
-1;JMP
 
-(20)
-@20
-0;JMP
 
-(HELP)
-@HELP
-
-(ARG)
-@ARG
-
-(OK)
-@OK
