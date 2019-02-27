@@ -14,14 +14,16 @@ Usage:
 
 
 def compare(file_path1, file_path2):
+    """Takes into two file paths and compares the two files line by line."""
     file1, file2 = open(file_path1), open(file_path2)
 
     lines1, lines2 = file1.readlines(), file2.readlines()
 
     for i, line1 in enumerate(lines1):
         if line1 != lines2[i]:
-            print("Comparison error at line", i+1)
+            print("Comparison failure at line", i+1)
             return False
+    print("Comparison success.")
     return True
 
 def main():
