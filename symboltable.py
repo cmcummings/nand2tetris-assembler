@@ -34,21 +34,20 @@ class SymbolTable:
         self.table = [] 
         self.next_variable_address = 16
     
-    def add_entry(self, symbol):
+    def add_entry(self, symbol, address=None):
         """Adds the pair (symbol, address) to the table and returns it.
         Address is assigned automatically by this function."""
         if self.contains(symbol):
             return self.get_address(symbol)
-        
-        address = -1
-        
-        for predef in PREDEFINED_SYMBOLS:
-            if symbol == predef[0]:
-                address = predef[1]
-        
-        if address == -1:
-            address = self.next_variable_address
-            self.next_variable_address += 1
+
+        if address is None: # If no address specified, automatically assign it
+            address = -1
+            for predef in PREDEFINED_SYMBOLS:
+                if symbol == predef[0]:
+                    address = predef[1]
+            if address == -1:
+                address = self.next_variable_address
+                self.next_variable_address += 1
             
         self.table.append((symbol, address))
         return self.get_address(symbol)
