@@ -22,12 +22,15 @@ class Parser:
         self.file = open(self.path)
         # File reading
         self.lines = self.file.readlines()
-        self.index = -1
+        self.index = -1 # Line when reading the file
+        self.line_index = 0 # Line index, not including empty spaces
         self.line = None
         # Symbol table
         self.symbol_table = SymbolTable()
         
         print("Opened file:", self.path)
+        print("Fetching L commands")
+        self.fetch_l_commands()
 
     def __str__(self):
         return self.line
@@ -42,12 +45,32 @@ class Parser:
         """Reads the next command from the input and makes it the current command.
         Should be called only when has_more_commands is True. Initially there is no current command."""
         
-        self.index += 1
+        self.line = self.get_next_line()
+        while len(self.line) == 0: # Skip empty lines
+            self.line = self.get_next_line()
         
-        dirty_line = self.lines[self.index]
-        self.line = dirty_line.split("//")[0].strip() # Remove whitespace and comments
-        
+        if self.command_type() != L_COMMAND:
+            self.line_index += 1
+
         return self.line
+
+    def get_next_line(self):
+        """Advances the reader. Cleans the line but does not ignore empty lines."""
+        self.index += 1
+        dirty_line = self.lines[self.index]
+        return dirty_line.split("//")[0].strip() # Remove whitespace and comments
+
+    def fetch_l_commands(self):
+        i = 0
+        for line in self.lines:
+            clean_line = line.split("//")[0].strip()
+            if len(clean_line) != 0:
+                if clean_line[0] == "(" and clean_line[-1] == ")":
+                    addy_only = clean_line[1:-1]
+                    if not addy_only.isdigit():
+                        self.symbol_table.add_entry(addy_only, i)
+                else:
+                    i += 1   
     
     def command_type(self):
         """Returns the type of the current command.
@@ -66,13 +89,13 @@ class Parser:
         Should be called only when command_type is A_COMMAND or L_COMMAND"""
         # Check if symbol
         address_dec = 0
-
+        c_type = self.command_type()
         addy_only = ""
-        if self.command_type() == L_COMMAND:
+        if c_type == L_COMMAND:
             addy_only = self.line[1:-1]
         else: # A_COMMAND
             addy_only = self.line[1:]
-
+        
         if addy_only.isdigit():
             address_dec = int(addy_only)
         else:
@@ -80,7 +103,10 @@ class Parser:
             if self.symbol_table.contains(addy_only):
                 address_dec = self.symbol_table.get_address(addy_only)
             else:
-                address_dec = self.symbol_table.add_entry(addy_only)
+                if c_type == L_COMMAND:
+                    address_dec = self.symbol_table.add_entry(addy_only, self.line_index)
+                else:
+                    address_dec = self.symbol_table.add_entry(addy_only)
 
         if address_dec > 2 ** 15: # max 15-bit integer (32767)
             raise InvalidAddressError("Address " + str(address_dec) + " exceeds the maximum capacity.")
@@ -115,6 +141,7 @@ class Parser:
         return None
 
     def __del__(self):
+        print(self.line_index, "lines translated.")
         self.file.close()
         print("Closing file:", self.path)
 
