@@ -33,12 +33,8 @@ hack_file_path = utils.get_path_with_different_extension(path, ".cack")
 hack_file = Writer(hack_file_path) # Create/open the binary file that will be written to
 
 # Translate!
-lines = 0
 while asm_file.has_more_commands():
     line = asm_file.advance()
-    
-    # Skip empty lines
-    if len(line) == 0: continue
 
 
     print(line)
@@ -48,7 +44,6 @@ while asm_file.has_more_commands():
 
     if command_type == A_COMMAND:
         print("A COMMAND")
-        lines += 1
 
         address = asm_file.symbol()
         print(address)
@@ -57,7 +52,6 @@ while asm_file.has_more_commands():
     
     elif command_type == C_COMMAND:
         print("C COMMAND")
-        lines += 1
 
         asm_comp = asm_file.comp()
         asm_dest = asm_file.dest()
@@ -78,6 +72,5 @@ while asm_file.has_more_commands():
 
     print("\n")
 
-print(lines, "lines translated.")
 
 comparer.compare(hack_file_path, utils.get_path_with_different_extension(path, ".hack"))
