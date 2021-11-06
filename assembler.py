@@ -29,7 +29,7 @@ path = arguments[0]
 
 # Load files
 asm_file = Parser(path) # Open the file that will be translated
-hack_file_path = utils.get_path_with_different_extension(path, ".hack")
+hack_file_path = utils.get_path_with_different_extension(path, ".cack")
 hack_file = Writer(hack_file_path) # Create/open the binary file that will be written to
 
 # Translate!
