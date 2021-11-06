@@ -3,6 +3,7 @@ Project 6 of the [Nand to Tetris](https://www.nand2tetris.org/course) course.
 
 - Translates the "Hack" assembly language into its equivalent binary representation.
 - Written in Python.
+- See the [examples](https://github.com/cmcummings/nand2tetris-assembler/tree/master/examples) folder for example input/outputs.
 
 ### Program Structure
 - `parser.py` reads and each assembly command in the program, breaking it up into its symbols.
