@@ -4,9 +4,11 @@ Project 6 of the [Nand to Tetris](https://www.nand2tetris.org/course) course.
 - Translates the "Hack" assembly language into its equivalent binary representation.
 - Written in Python.
 
-
-
-
+### Program Structure
+- `parser.py` reads and each assembly command in the program, breaking it up into its symbols.
+- `code.py` translates the assembly mnemonics into binary codes
+- `symboltable.py` keeps track of symbol labels (variables) and their corresponding numeric addresses.
+- `assembler.py` uses the previous modules to translate files
 
 ### Usage
 Use `assembler.py` to generate .hack files (binaries) from .asm files (assembly code)
